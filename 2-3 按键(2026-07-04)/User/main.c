@@ -14,11 +14,11 @@ int main(void)
 	   KeyNumber = Key_GetNum();
 	   if(KeyNumber == 1)
 	   {
-		   LED1_ON();
+		   LED1_Turn();
 	   }
 	    if(KeyNumber == 2)
 	   {
-		   LED1_OFF();
+		   LED2_Turn();
 	   }	   
 	}
 }

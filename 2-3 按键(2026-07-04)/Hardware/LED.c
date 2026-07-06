@@ -23,6 +23,18 @@ void LED1_OFF(void)
 	GPIO_SetBits(GPIOA,GPIO_Pin_1);
 }
 
+void LED1_Turn(void)
+{
+	if (GPIO_ReadOutputDataBit(GPIOA,GPIO_Pin_1)==0)
+	{
+		GPIO_SetBits(GPIOA,GPIO_Pin_1);
+	}
+	else
+	{
+		GPIO_ResetBits(GPIOA,GPIO_Pin_1);
+	}
+}
+
 void LED2_ON(void)
 {
 	GPIO_ResetBits(GPIOA,GPIO_Pin_2);
@@ -31,4 +43,16 @@ void LED2_ON(void)
 void LED2_OFF(void)
 {
 	GPIO_SetBits(GPIOA,GPIO_Pin_2);
+}
+
+void LED2_Turn(void)
+{
+	if (GPIO_ReadOutputDataBit(GPIOA,GPIO_Pin_2)==0)
+	{
+		GPIO_SetBits(GPIOA,GPIO_Pin_2);
+	}
+	else
+	{
+		GPIO_ResetBits(GPIOA,GPIO_Pin_2);
+	}
 }
