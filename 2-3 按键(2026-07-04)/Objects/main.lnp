@@ -27,6 +27,8 @@
 ".\objects\stm32f10x_wwdg.o"
 ".\objects\led.o"
 ".\objects\key.o"
+".\objects\lightsensor.o"
+".\objects\buzzer.o"
 ".\objects\main.o"
 ".\objects\stm32f10x_it.o"
 ".\objects\delay.o"
