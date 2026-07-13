@@ -30,3 +30,4 @@
 .\objects\main.o: .\Lib\misc.h
 .\objects\main.o: User\Delay.h
 .\objects\main.o: .\Hardware\OLED.h
+.\objects\main.o: .\Hardware\Infrared.h

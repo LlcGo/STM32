@@ -30,6 +30,7 @@
 ".\objects\lightsensor.o"
 ".\objects\buzzer.o"
 ".\objects\oled.o"
+".\objects\infrared.o"
 ".\objects\main.o"
 ".\objects\stm32f10x_it.o"
 ".\objects\delay.o"
