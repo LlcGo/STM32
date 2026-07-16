@@ -19,6 +19,9 @@ void Timer_Init(void){
 	TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0;
 	TIM_TimeBaseInit(TIM2,&TIM_TimeBaseInitStruct);
 	
+	// 解决中断控制一进去就触发中断的问题
+	TIM_ClearFlag(TIM2,TIM_FLAG_Update);
+	
 	// 中断输出控制
 	TIM_ITConfig(TIM2,TIM_IT_Update,ENABLE);
 	

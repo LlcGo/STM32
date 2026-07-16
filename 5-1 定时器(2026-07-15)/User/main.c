@@ -11,5 +11,6 @@ int main(void)
 	Timer_Init();
 	while(1){
 	   OLED_ShowNum(1,1,Num,5);
+	   OLED_ShowNum(2,1,TIM_GetCounter(TIM2),5);
 	}
 }
