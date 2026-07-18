@@ -10,7 +10,7 @@ void Timer_Init(void){
 	
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA,&GPIO_InitStructure);
 	
@@ -20,8 +20,8 @@ void Timer_Init(void){
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
 	TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInitStruct.TIM_Period = 10000 -1;
-	TIM_TimeBaseInitStruct.TIM_Prescaler = 7200 -1;
+	TIM_TimeBaseInitStruct.TIM_Period = 100-1;
+	TIM_TimeBaseInitStruct.TIM_Prescaler = 1-1;
 	TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0;
 	TIM_TimeBaseInit(TIM2,&TIM_TimeBaseInitStruct);
 	
@@ -44,11 +44,16 @@ void Timer_Init(void){
 	TIM_Cmd(TIM2,ENABLE);
 }
 
-void TIM2_IRQHandler(void)
+uint16_t Timer_GetCounter(void)
 {
-	if (TIM_GetITStatus(TIM2,TIM_IT_Update) == SET)
-	{
-		Num++;
-		TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
-	}
+	return TIM_GetCounter(TIM2);
 }
+
+//void TIM2_IRQHandler(void)
+//{
+//	if (TIM_GetITStatus(TIM2,TIM_IT_Update) == SET)
+//	{
+//		Num++;
+//		TIM_ClearITPendingBit(TIM2,TIM_IT_Update);
+//	}
+//}
