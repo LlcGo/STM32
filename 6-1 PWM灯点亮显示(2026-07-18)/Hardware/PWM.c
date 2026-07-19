@@ -49,3 +49,8 @@ void PWM_Init()
 	TIM_Cmd(TIM2,ENABLE);
 	
 }
+
+void PWM_SetCompare1(uint16_t Compare)
+{
+	TIM_SetCompare1(TIM2,Compare);
+}
