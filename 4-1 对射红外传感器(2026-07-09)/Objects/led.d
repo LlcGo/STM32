@@ -28,3 +28,4 @@
 .\objects\led.o: .\Lib\stm32f10x_usart.h
 .\objects\led.o: .\Lib\stm32f10x_wwdg.h
 .\objects\led.o: .\Lib\misc.h
+.\objects\led.o: Hardware\LED.h

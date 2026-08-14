@@ -31,3 +31,4 @@
 .\objects\main.o: User\Delay.h
 .\objects\main.o: .\Hardware\OLED.h
 .\objects\main.o: .\Hardware\Infrared.h
+.\objects\main.o: .\Hardware\LED.h
