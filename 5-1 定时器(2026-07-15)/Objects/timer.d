@@ -28,3 +28,4 @@
 .\objects\timer.o: .\Lib\stm32f10x_usart.h
 .\objects\timer.o: .\Lib\stm32f10x_wwdg.h
 .\objects\timer.o: .\Lib\misc.h
+.\objects\timer.o: Hardware\LED.h
