@@ -3,54 +3,38 @@
 
 void PWM_Init()
 {
-	
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
 	
 	GPIO_InitTypeDef GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA,&GPIO_InitStructure);
 	
-	// 时基单元初始化
-   	// 总线APB1给TIM2使能
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE);
+	TIM_TimeBaseInitTypeDef TimBaseStruct;
+	TimBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+	TimBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
+	TimBaseStruct.TIM_Period =  100 -1;
+	TimBaseStruct.TIM_Prescaler = 720 -1;
+	TimBaseStruct.TIM_RepetitionCounter = 0;
+	TIM_TimeBaseInit(TIM2,&TimBaseStruct);
 	
-	// 使用内部时钟 TIM2的
-	TIM_InternalClockConfig(TIM2);
-	
-	// 初始化时基单元
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
-	TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
-	TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInitStruct.TIM_Period = 100 -1; //ARR
-	TIM_TimeBaseInitStruct.TIM_Prescaler = 720 -1; //PSC
-	TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0;
-	TIM_TimeBaseInit(TIM2,&TIM_TimeBaseInitStruct);
+	TIM_OCInitTypeDef TIMOCInitStruct;
 	
 	
-	TIM_OCInitTypeDef TIM_OCInitStruct;
-	// 初始化
-	TIM_OCStructInit(&TIM_OCInitStruct);
-	// 设置输出比较模式
-	TIM_OCInitStruct.TIM_OCMode = TIM_OCMode_PWM1;
-	// 设置输出比较的极性
-	TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
-	// 设置输出使能
-	TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable;
-	// 设置CCR
-	TIM_OCInitStruct.TIM_Pulse = 10; // CCR
-	
-	
-	// 比较器初始化
-	TIM_OC1Init(TIM2,&TIM_OCInitStruct);
-	
-	// 定时器启动
-	TIM_Cmd(TIM2,ENABLE);
+	TIM_OCStructInit(&TIMOCInitStruct);
+	TIMOCInitStruct.TIM_OCMode =TIM_OCMode_PWM1;
+	TIMOCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
+	TIM_OC1Init(TIM2,&TIMOCInitStruct);
+
+	//TIM_OC1PreloadConfig(TIM2,TIM_OCPreload_Enable);
+	//TIM_OC1PolarityConfig(TIM2,TIM_OCPolarity_High);
 	
 }
 
 void PWM_SetCompare1(uint16_t Compare)
 {
 	TIM_SetCompare1(TIM2,Compare);
+	GPIO_SetBits(GPIOA,GPIO_Pin_0);
 }
