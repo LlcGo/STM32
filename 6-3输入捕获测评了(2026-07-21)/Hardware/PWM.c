@@ -8,7 +8,7 @@ void PWM_Init()
 	
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA,&GPIO_InitStructure);
 	
@@ -23,7 +23,7 @@ void PWM_Init()
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
 	TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInitStruct.TIM_Period = 20000 -1; //ARR
+	TIM_TimeBaseInitStruct.TIM_Period = 100 -1; //ARR
 	TIM_TimeBaseInitStruct.TIM_Prescaler = 72 -1; //PSC
 	TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0;
 	TIM_TimeBaseInit(TIM2,&TIM_TimeBaseInitStruct);
@@ -40,11 +40,8 @@ void PWM_Init()
 	TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable;
 	// 设置CCR
 	TIM_OCInitStruct.TIM_Pulse = 0; // CCR
-	
-	
 	// 比较器初始化
-//	TIM_OC1Init(TIM2,&TIM_OCInitStruct);
-	TIM_OC2Init(TIM2,&TIM_OCInitStruct);
+	TIM_OC1Init(TIM2,&TIM_OCInitStruct);
 	
 	// 定时器启动
 	TIM_Cmd(TIM2,ENABLE);
@@ -53,7 +50,7 @@ void PWM_Init()
 
 void PWM_SetCompare1(uint16_t Compare)
 {
-	PWM_SetCompare1(Compare);
+	TIM_SetCompare1(TIM2,Compare);
 }
 
 void PWM_SetPrescaler(uint16_t Prescaler)
