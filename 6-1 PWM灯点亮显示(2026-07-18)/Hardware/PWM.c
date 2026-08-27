@@ -3,47 +3,37 @@
 
 void PWM_Init()
 {
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2,ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3,ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA,ENABLE);
-	//GPIO_PinRemapConfig(GPIO_FullRemap_TIM2,ENABLE);
 	
-	GPIO_InitTypeDef GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOA,&GPIO_InitStructure);
-	GPIO_ResetBits(GPIOA,GPIO_Pin_15);
+	GPIO_InitTypeDef GPIO_InitStruct;
+	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6;
+	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA,&GPIO_InitStruct);
 	
+	TIM_InternalClockConfig(TIM3);
 	
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
+	TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInitStruct.TIM_Period = 100 -1;
+	TIM_TimeBaseInitStruct.TIM_Prescaler = 720-1;
+	TIM_TimeBaseInitStruct.TIM_RepetitionCounter = 0;
+	TIM_TimeBaseInit(TIM3,&TIM_TimeBaseInitStruct);
 	
-	TIM_TimeBaseInitTypeDef TimBaseStruct;
-	TimBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
-	TimBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
-	TimBaseStruct.TIM_Period =  100 -1;
-	TimBaseStruct.TIM_Prescaler = 720 -1;
-	TimBaseStruct.TIM_RepetitionCounter = 0;
-	TIM_TimeBaseInit(TIM2,&TimBaseStruct);
+	TIM_OCInitTypeDef TIM_OCInitStrutc;
+	TIM_OCStructInit(&TIM_OCInitStrutc);
+	TIM_OCInitStrutc.TIM_OCMode = TIM_OCMode_PWM1;
+	TIM_OCInitStrutc.TIM_OCPolarity  = TIM_OCPolarity_High;
+	TIM_OCInitStrutc.TIM_OutputState = TIM_OutputState_Enable;
+	TIM_OCInitStrutc.TIM_Pulse =90;
+	TIM_OC1Init(TIM3,&TIM_OCInitStrutc);
 	
-	TIM_OCInitTypeDef TIMOCInitStruct;
-	
-	TIM_OCStructInit(&TIMOCInitStruct);
-	TIMOCInitStruct.TIM_OCMode =TIM_OCMode_PWM1;
-	TIMOCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
-	TIMOCInitStruct.TIM_OutputState = TIM_OutputState_Enable;
-	TIMOCInitStruct.TIM_Pulse = 0;
-	TIM_OC1Init(TIM2,&TIMOCInitStruct);
-	
-	TIM_Cmd(TIM2,ENABLE);
-
-	
-
-	//TIM_OC1PreloadConfig(TIM2,TIM_OCPreload_Enable);
-	//TIM_OC1PolarityConfig(TIM2,TIM_OCPolarity_High);
-	
+	TIM_Cmd(TIM3,ENABLE);
 }
 
 void PWM_SetCompare1(uint16_t Compare)
 {
-	TIM_SetCompare1(TIM2,Compare);
-	//GPIO_SetBits(GPIOA,GPIO_Pin_0);
+	TIM_SetCompare1(TIM3,Compare);
 }
