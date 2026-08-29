@@ -10,11 +10,12 @@ void AD_Init(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA,&GPIO_InitStructure);
 	
+	RCC_ADCCLKConfig(RCC_PCLK2_Div6);
 	
 	ADC_InitTypeDef ADC_InitStruct;
-	ADC_InitStruct.ADC_Mode = ADC_Mode_RegInjecSimult;
+	ADC_InitStruct.ADC_Mode = ADC_Mode_Independent;
 	ADC_InitStruct.ADC_ScanConvMode = DISABLE;
-	ADC_InitStruct.ADC_ContinuousConvMode = DISABLE;
+	ADC_InitStruct.ADC_ContinuousConvMode = ENABLE;
 	ADC_InitStruct.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
 	ADC_InitStruct.ADC_DataAlign = ADC_DataAlign_Right;
 	ADC_InitStruct.ADC_NbrOfChannel = 1;
@@ -24,11 +25,15 @@ void AD_Init(void)
 	
 	ADC_Cmd(ADC1,ENABLE);
 	
+	ADC_ResetCalibration(ADC1);
+    while(ADC_GetResetCalibrationStatus(ADC1) == SET);
 	ADC_StartCalibration(ADC1);
+    while(ADC_GetCalibrationStatus(ADC1)== SET);
+	
+	ADC_SoftwareStartConvCmd(ADC1,ENABLE);
 }
 
-uint8_t AD_GetValue(void)
+uint16_t AD_GetValue(void)
 {
-	ADC_SoftwareStartConvCmd(ADC1,ENABLE);
-	ADC_GetConversionValue(ADC1);
+    return ADC_GetConversionValue(ADC1);
 }
