@@ -7,9 +7,11 @@ int main(void)
 {
 	OLED_Init();
 	Serial_Init();
-	
+	SendByte(0X41);
 	while(1){
-	   while(USART_GetFlagStatus(USART1,USART_FLAG_RXNE) == SET);
-	   uint16_t recData = USART_ReceiveData(USART1);
+		if (USART_GetFlagStatus(USART2,USART_FLAG_RXNE) == SET)
+		{
+			 OLED_ShowHexNum(1,1,USART_ReceiveData(USART2),2);
+		}
 	}
 }

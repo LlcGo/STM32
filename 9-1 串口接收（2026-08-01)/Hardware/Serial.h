@@ -3,5 +3,5 @@
 
 void Serial_Init(void);
 void SendByte(uint16_t Data);
-
+uint16_t RECByte();
 #endif
