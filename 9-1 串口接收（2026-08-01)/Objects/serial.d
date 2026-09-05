@@ -28,3 +28,6 @@
 .\objects\serial.o: .\Lib\stm32f10x_usart.h
 .\objects\serial.o: .\Lib\stm32f10x_wwdg.h
 .\objects\serial.o: .\Lib\misc.h
+.\objects\serial.o: D:\arm\C51\ARM\ARMCC\Bin\..\include\string.h
+.\objects\serial.o: D:\arm\C51\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\serial.o: D:\arm\C51\ARM\ARMCC\Bin\..\include\stdio.h
