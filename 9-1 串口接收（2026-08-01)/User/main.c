@@ -15,7 +15,7 @@ uint8_t rx_complete = 0;
 
 char* getMessage(char* response)
 {
-	char* clean = malloc(64);
+	char* clean = malloc(128);
 	uint16_t j = 0;
 	for(uint16_t i = 0; response[i] != '\0'; i++)
 	{
@@ -33,15 +33,12 @@ void USART2_IRQHandler(void)
     if(USART_GetITStatus(USART2, USART_IT_RXNE) == SET)
     {
         uint16_t data = USART_ReceiveData(USART2);
-        if(rx_index < 127)
-        {
-            rx_buffer[rx_index++] = (char)data;
-            if(data == '\n')
-            {
-                rx_buffer[rx_index] = '\0';
-                rx_complete = 1;
-            }
-        }
+		rx_buffer[rx_index++] = (char)data;
+		if(data == '\n')
+		{
+			rx_buffer[rx_index] = '\0';
+			rx_complete = 1;
+		}
     }
 }
 
@@ -49,35 +46,82 @@ int main(void)
 {
     OLED_Init();
     Serial_Init();
-    
-    SendString("ATE0\r\n");
-    Delay_ms(500);
-    
+	
+   
+    /**
+	SendString("AT\r\n");
+    Delay_ms(5000);
+	SendString("AT+CWJAP=\"CMCC-79Ja\",\"fd8cy37a\"\r\n");
+        
+	Delay_ms(5000);
+	SendString("AT+CIPSTART=\"TCP\",\"192.168.1.2\",8088\r\n");
+	**/
     while(1)
     {
-        SendString("AT\r\n");
-        Delay_ms(1000);
+		OLED_Clear();
+		SendString("ATE0\r\n");
+		Delay_ms(2000);
+		SendString("AT\r\n");
+		if(rx_complete)
+		{
+			char* clean_msg = getMessage(rx_buffer);
+			OLED_ShowString(1, 1,clean_msg);
+			free(clean_msg);
+			
+			OLED_ShowNum(4,1,rx_index,2);
+			memset(rx_buffer, 0, sizeof(rx_buffer));
+			rx_index=0;
+			rx_complete = 0;
+		}
+		
 		SendString("AT+CWJAP=\"CMCC-79Ja\",\"fd8cy37a\"\r\n");
-        
-        if(rx_complete)
-        {
-            rx_complete = 0;
-            
-            // 使用你的函数去除换行符
-            char* clean_msg = getMessage(rx_buffer);
-            OLED_ShowString(1, 1, clean_msg);
-            
-            // 释放内存
-            free(clean_msg);
-            
-            // 清空缓冲区
-            memset(rx_buffer, 0, 128);
-            rx_index = 0;
-        }
-        
-        Delay_ms(2000);
-		SendString("AT+CIPSTART=\"TCP\",\"192.168.1.6\",8088\r\n");
-		while(1);
+		Delay_ms(5000);
+		if(rx_complete)
+		{
+			char* clean_msg = getMessage(rx_buffer);
+			OLED_ShowString(2, 1,clean_msg);
+			free(clean_msg);
+			
+			OLED_ShowNum(4,1,rx_index,2);
+			memset(rx_buffer, 0, sizeof(rx_buffer));
+			rx_index=0;
+			rx_complete = 0;
+		}
+		
+		SendString("AT+CIPSTART=\"TCP\",\"192.168.1.2\",8088\r\n");
+		Delay_ms(6000);
+		if(rx_complete)
+		{
+			char* clean_msg = getMessage(rx_buffer);
+			OLED_ShowString(3, 1,clean_msg);
+			free(clean_msg);
+			
+			OLED_ShowNum(4,1,rx_index,2);
+			memset(rx_buffer, 0, sizeof(rx_buffer));
+			rx_index=0;
+			rx_complete = 0;
+		}
+		
+		
+		Delay_ms(5000);
+		OLED_Clear();
+		while(1)
+		{
+			if(rx_complete)
+			{
+				char* clean_msg = getMessage(rx_buffer);
+				OLED_ShowString(2, 1, clean_msg);
+				free(clean_msg);
+				
+				OLED_ShowNum(4, 1, rx_index, 2);
+				memset(rx_buffer, 0, sizeof(rx_buffer));
+				rx_index = 0;
+				rx_complete = 0;
+			}
+			Delay_ms(3000);  // 一定要加延时！
+			OLED_Clear();
+		}
+		//Delay_ms(2000);
     }
 }
 
