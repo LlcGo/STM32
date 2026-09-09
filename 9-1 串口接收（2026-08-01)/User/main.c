@@ -12,6 +12,59 @@
 char rx_buffer[128];
 uint16_t rx_index = 0;
 uint8_t rx_complete = 0;
+uint8_t g_initStep = 0;
+
+char* getMessage(char* response);
+int compareStr(char*res,char*des);
+
+typedef enum {
+	AT,
+	AT_CWJAP,
+	AT_CIPSTART,
+	TCP_REC,
+	WIFI_WAIT,
+}WIFI_STATUS;
+
+
+WIFI_STATUS getStatus()
+{
+	if(rx_complete)
+	{
+		char* res = getMessage(rx_buffer);
+		if(compareStr(res,"OK"))
+		{
+			g_initStep = 1;
+			return AT;
+		}
+		else if(compareStr(res,"GOT"))
+		{
+			g_initStep =2;
+			return AT_CWJAP;
+		}
+		else if(compareStr(res,"CONNECT"))
+		{
+			return AT_CIPSTART;
+		}
+		else if(compareStr(res,"IPD"))
+		{
+			return TCP_REC;
+		}
+		else 
+		{
+			return WIFI_WAIT;
+		}
+	}
+	
+	return WIFI_WAIT;
+}
+
+int compareStr(char*res,char*des)
+{
+	 if (res == NULL || des == NULL) {
+          return 0;
+    }
+	return strstr(res,des) != NULL;
+}
 
 char* getMessage(char* response)
 {
@@ -42,85 +95,68 @@ void USART2_IRQHandler(void)
     }
 }
 
+
+void processWifiInit(void) {
+    // 如果还没收到回复，等待
+    if (!rx_complete) {
+        return;
+    }
+    
+    // 根据状态执行下一步
+    switch (g_initStep) {
+        case 1:
+            Delay_ms(5000);
+            SendString("AT+CWJAP=\"CMCC-79Ja\",\"fd8cy37a\"\r\n");
+            break;
+        case 2:
+            Delay_ms(5000);
+            SendString("AT+CIPSTART=\"TCP\",\"192.168.1.2\",8088\r\n");
+            break;
+        default:
+            break;
+    }
+	
+    // 清理缓冲区
+    //rx_complete = 0;
+    //rx_index = 0;
+    //memset(rx_buffer, 0, sizeof(rx_buffer));
+}
+
 int main(void)
 {
     OLED_Init();
     Serial_Init();
-	
-   
-    /**
+    SendString("ATE0\r\n");
 	SendString("AT\r\n");
-    Delay_ms(5000);
-	SendString("AT+CWJAP=\"CMCC-79Ja\",\"fd8cy37a\"\r\n");
-        
-	Delay_ms(5000);
-	SendString("AT+CIPSTART=\"TCP\",\"192.168.1.2\",8088\r\n");
-	**/
     while(1)
     {
-		OLED_Clear();
-		SendString("ATE0\r\n");
+		WIFI_STATUS status = getStatus();
+		processWifiInit();
+		switch (status){
+			case AT:
+				OLED_ShowString(1,1,"AT OK");
+			    rx_complete = 0;
+                rx_index = 0;
+                memset(rx_buffer, 0, sizeof(rx_buffer));
+				break;
+			case AT_CWJAP:
+				OLED_ShowString(1,1,"WIFI CONNECT");
+				break;
+			case AT_CIPSTART:
+				OLED_ShowString(1,1,"TCP CONNECT");
+				break;
+			case TCP_REC:
+				OLED_ShowString(1,1,"TCP REC");
+				break;
+			default:
+				OLED_ShowString(1,1,"WAIT...");
+				break;
+		}
+			
 		Delay_ms(2000);
-		SendString("AT\r\n");
-		if(rx_complete)
-		{
-			char* clean_msg = getMessage(rx_buffer);
-			OLED_ShowString(1, 1,clean_msg);
-			free(clean_msg);
-			
-			OLED_ShowNum(4,1,rx_index,2);
-			memset(rx_buffer, 0, sizeof(rx_buffer));
-			rx_index=0;
-			rx_complete = 0;
-		}
-		
-		SendString("AT+CWJAP=\"CMCC-79Ja\",\"fd8cy37a\"\r\n");
-		Delay_ms(5000);
-		if(rx_complete)
-		{
-			char* clean_msg = getMessage(rx_buffer);
-			OLED_ShowString(2, 1,clean_msg);
-			free(clean_msg);
-			
-			OLED_ShowNum(4,1,rx_index,2);
-			memset(rx_buffer, 0, sizeof(rx_buffer));
-			rx_index=0;
-			rx_complete = 0;
-		}
-		
-		SendString("AT+CIPSTART=\"TCP\",\"192.168.1.2\",8088\r\n");
-		Delay_ms(6000);
-		if(rx_complete)
-		{
-			char* clean_msg = getMessage(rx_buffer);
-			OLED_ShowString(3, 1,clean_msg);
-			free(clean_msg);
-			
-			OLED_ShowNum(4,1,rx_index,2);
-			memset(rx_buffer, 0, sizeof(rx_buffer));
-			rx_index=0;
-			rx_complete = 0;
-		}
-		
-		
-		Delay_ms(5000);
 		OLED_Clear();
-		while(1)
-		{
-			if(rx_complete)
-			{
-				char* clean_msg = getMessage(rx_buffer);
-				OLED_ShowString(2, 1, clean_msg);
-				free(clean_msg);
-				
-				OLED_ShowNum(4, 1, rx_index, 2);
-				memset(rx_buffer, 0, sizeof(rx_buffer));
-				rx_index = 0;
-				rx_complete = 0;
-			}
-			Delay_ms(3000);  // 一定要加延时！
-			OLED_Clear();
-		}
+		
+		
 		//Delay_ms(2000);
     }
 }
