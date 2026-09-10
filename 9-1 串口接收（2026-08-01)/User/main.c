@@ -23,6 +23,7 @@ typedef enum {
 	AT_CIPSTART,
 	TCP_REC,
 	WIFI_WAIT,
+	WIFI_DISCONNECT,
 }WIFI_STATUS;
 
 
@@ -40,6 +41,10 @@ WIFI_STATUS getStatus()
 		{
 			g_initStep =2;
 			return AT_CWJAP;
+		}
+		else if(compareStr(res,"WIFI DISCONNECT"))
+		{
+			return WIFI_DISCONNECT;
 		}
 		else if(compareStr(res,"CONNECT"))
 		{
@@ -141,12 +146,27 @@ int main(void)
 				break;
 			case AT_CWJAP:
 				OLED_ShowString(1,1,"WIFI CONNECT");
+			    rx_complete = 0;
+                rx_index = 0;
+                memset(rx_buffer, 0, sizeof(rx_buffer));
 				break;
 			case AT_CIPSTART:
 				OLED_ShowString(1,1,"TCP CONNECT");
+				rx_complete = 0;
+                rx_index = 0;
+                memset(rx_buffer, 0, sizeof(rx_buffer));
 				break;
 			case TCP_REC:
 				OLED_ShowString(1,1,"TCP REC");
+				rx_complete = 0;
+                rx_index = 0;
+                memset(rx_buffer, 0, sizeof(rx_buffer));
+				break;
+			case WIFI_DISCONNECT:
+				OLED_ShowString(1,1,"WIFI_DISCONNECT");
+				rx_complete = 0;
+                rx_index = 0;
+                memset(rx_buffer, 0, sizeof(rx_buffer));
 				break;
 			default:
 				OLED_ShowString(1,1,"WAIT...");
@@ -155,8 +175,6 @@ int main(void)
 			
 		Delay_ms(2000);
 		OLED_Clear();
-		
-		
 		//Delay_ms(2000);
     }
 }
