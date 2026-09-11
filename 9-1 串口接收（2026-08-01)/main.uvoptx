@@ -178,6 +178,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>des</ItemText>
         </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>\\main\User/main.c\rx_buffer[1]</ItemText>
+        </Ww>
       </WatchWindow1>
       <Tracepoint>
         <THDelay>0</THDelay>

@@ -12,7 +12,8 @@
 char rx_buffer[128];
 uint16_t rx_index = 0;
 uint8_t rx_complete = 0;
-uint8_t g_initStep = 0;
+uint8_t stopClear = 0;
+uint8_t isOK = 0;
 
 char* getMessage(char* response);
 int compareStr(char*res,char*des);
@@ -32,34 +33,47 @@ WIFI_STATUS getStatus()
 	if(rx_complete)
 	{
 		char* res = getMessage(rx_buffer);
-		if(compareStr(res,"OK"))
+		if(stopClear)
 		{
-			g_initStep = 1;
+			if(compareStr(res,"GOT"))
+			{
+			   stopClear = 0;
+			   free(res);
+			   return AT_CWJAP;
+			}
+		}
+		else if(compareStr(res,"OK"))
+		{
+			free(res);
 			return AT;
 		}
 		else if(compareStr(res,"GOT"))
 		{
-			g_initStep =2;
+			free(res);
 			return AT_CWJAP;
 		}
 		else if(compareStr(res,"WIFI DISCONNECT"))
 		{
+			free(res);
 			return WIFI_DISCONNECT;
 		}
 		else if(compareStr(res,"CONNECT"))
 		{
+			free(res);
 			return AT_CIPSTART;
 		}
 		else if(compareStr(res,"IPD"))
 		{
+			free(res);
 			return TCP_REC;
 		}
 		else 
 		{
+			free(res);
 			return WIFI_WAIT;
 		}
 	}
-	
+		
 	return WIFI_WAIT;
 }
 
@@ -68,7 +82,8 @@ int compareStr(char*res,char*des)
 	 if (res == NULL || des == NULL) {
           return 0;
     }
-	return strstr(res,des) != NULL;
+	int res1 = strstr(res,des) != NULL; 
+	return res1;
 }
 
 char* getMessage(char* response)
@@ -96,36 +111,14 @@ void USART2_IRQHandler(void)
 		{
 			rx_buffer[rx_index] = '\0';
 			rx_complete = 1;
+			if(compareStr(rx_buffer,"GOT"))
+			{
+			   stopClear = 1;
+			}
 		}
     }
 }
 
-
-void processWifiInit(void) {
-    // 如果还没收到回复，等待
-    if (!rx_complete) {
-        return;
-    }
-    
-    // 根据状态执行下一步
-    switch (g_initStep) {
-        case 1:
-            Delay_ms(5000);
-            SendString("AT+CWJAP=\"CMCC-79Ja\",\"fd8cy37a\"\r\n");
-            break;
-        case 2:
-            Delay_ms(5000);
-            SendString("AT+CIPSTART=\"TCP\",\"192.168.1.2\",8088\r\n");
-            break;
-        default:
-            break;
-    }
-	
-    // 清理缓冲区
-    //rx_complete = 0;
-    //rx_index = 0;
-    //memset(rx_buffer, 0, sizeof(rx_buffer));
-}
 
 int main(void)
 {
@@ -133,40 +126,76 @@ int main(void)
     Serial_Init();
     SendString("ATE0\r\n");
 	SendString("AT\r\n");
+	WIFI_STATUS status;
+	
     while(1)
     {
-		WIFI_STATUS status = getStatus();
-		processWifiInit();
+		if(!isOK)
+		{
+			char* res = getMessage(rx_buffer);
+			if(compareStr(res,"OK"))
+			{
+				status = AT;
+			}
+			free(res);
+		}
+		
 		switch (status){
 			case AT:
+			    // 连接上WIFI模块
 				OLED_ShowString(1,1,"AT OK");
-			    rx_complete = 0;
-                rx_index = 0;
-                memset(rx_buffer, 0, sizeof(rx_buffer));
-				break;
-			case AT_CWJAP:
-				OLED_ShowString(1,1,"WIFI CONNECT");
-			    rx_complete = 0;
-                rx_index = 0;
-                memset(rx_buffer, 0, sizeof(rx_buffer));
-				break;
-			case AT_CIPSTART:
-				OLED_ShowString(1,1,"TCP CONNECT");
+			    isOK = 1;
+				// 发送连接WIFI 尝试切换为连接WIFI成功状态
+				SendString("AT+CWJAP=\"CMCC-79Ja\",\"fd8cy37a\"\r\n");
+			    char* res = getMessage(rx_buffer);
+			    if(compareStr(res,"GOT"))
+				{
+					 status = AT_CWJAP;
+				}
 				rx_complete = 0;
                 rx_index = 0;
                 memset(rx_buffer, 0, sizeof(rx_buffer));
+				free(res);
+				
+				break;
+			case AT_CWJAP:
+				// 连接上WIFI
+				OLED_ShowString(1,1,"WIFI CONNECT");
+				// 发送连接TCP接口 尝试切换为连接TCP状态
+				SendString("AT+CIPSTART=\"TCP\",\"192.168.1.2\",8088\r\n");
+			    res = getMessage(rx_buffer);
+				if(compareStr(res,"IP"))
+				{
+					 status = AT_CIPSTART;
+				}
+				rx_complete = 0;
+                rx_index = 0;
+                memset(rx_buffer, 0, sizeof(rx_buffer));
+				free(res);
+				
+				break;
+			case AT_CIPSTART:
+				// TCP连接成功
+				OLED_ShowString(1,1,"TCP CONNECT");
+			
+				res = getMessage(rx_buffer);
+				if(compareStr(res,"OK"))
+				{
+					 status = TCP_REC;
+				}
+				rx_complete = 0;
+                rx_index = 0;
+                memset(rx_buffer, 0, sizeof(rx_buffer));
+				free(res);
 				break;
 			case TCP_REC:
 				OLED_ShowString(1,1,"TCP REC");
+			    res = getMessage(rx_buffer);
+			    OLED_ShowString(2,1,res);
 				rx_complete = 0;
                 rx_index = 0;
                 memset(rx_buffer, 0, sizeof(rx_buffer));
-				break;
-			case WIFI_DISCONNECT:
-				OLED_ShowString(1,1,"WIFI_DISCONNECT");
-				rx_complete = 0;
-                rx_index = 0;
-                memset(rx_buffer, 0, sizeof(rx_buffer));
+			    free(res);
 				break;
 			default:
 				OLED_ShowString(1,1,"WAIT...");
