@@ -28,55 +28,6 @@ typedef enum {
 }WIFI_STATUS;
 
 
-WIFI_STATUS getStatus()
-{
-	if(rx_complete)
-	{
-		char* res = getMessage(rx_buffer);
-		if(stopClear)
-		{
-			if(compareStr(res,"GOT"))
-			{
-			   stopClear = 0;
-			   free(res);
-			   return AT_CWJAP;
-			}
-		}
-		else if(compareStr(res,"OK"))
-		{
-			free(res);
-			return AT;
-		}
-		else if(compareStr(res,"GOT"))
-		{
-			free(res);
-			return AT_CWJAP;
-		}
-		else if(compareStr(res,"WIFI DISCONNECT"))
-		{
-			free(res);
-			return WIFI_DISCONNECT;
-		}
-		else if(compareStr(res,"CONNECT"))
-		{
-			free(res);
-			return AT_CIPSTART;
-		}
-		else if(compareStr(res,"IPD"))
-		{
-			free(res);
-			return TCP_REC;
-		}
-		else 
-		{
-			free(res);
-			return WIFI_WAIT;
-		}
-	}
-		
-	return WIFI_WAIT;
-}
-
 int compareStr(char*res,char*des)
 {
 	 if (res == NULL || des == NULL) {
@@ -139,14 +90,17 @@ int main(void)
 			}
 			free(res);
 		}
-		
+
+
 		switch (status){
 			case AT:
 			    // 连接上WIFI模块
 				OLED_ShowString(1,1,"AT OK");
 			    isOK = 1;
 				// 发送连接WIFI 尝试切换为连接WIFI成功状态
-				SendString("AT+CWJAP=\"CMCC-79Ja\",\"fd8cy37a\"\r\n");
+				//SendString("AT+CWJAP=\"CMCC-79Ja\",\"fd8cy37a\"\r\n");
+			    SendString("AT+CWJAP=\"Xiaomi 14 Ultra_kFumOP6_MI\",\"hubingjiehaha\"\r\n");
+			    //SendString("AT+CWJAP=\"xy\",\"lc6677777\"\r\n");
 			    char* res = getMessage(rx_buffer);
 			    if(compareStr(res,"GOT"))
 				{
@@ -162,7 +116,7 @@ int main(void)
 				// 连接上WIFI
 				OLED_ShowString(1,1,"WIFI CONNECT");
 				// 发送连接TCP接口 尝试切换为连接TCP状态
-				SendString("AT+CIPSTART=\"TCP\",\"192.168.1.2\",8088\r\n");
+				SendString("AT+CIPSTART=\"TCP\",\"192.168.45.56\",8088\r\n");
 			    res = getMessage(rx_buffer);
 				if(compareStr(res,"IP"))
 				{

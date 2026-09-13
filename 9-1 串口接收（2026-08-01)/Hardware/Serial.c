@@ -50,7 +50,7 @@ void SendString(char* array)
 {
     for(int i = 0; array[i] != '\0'; i++)  // 修正循环条件
     {
-        USART_SendData(USART2, array[i]);  // 发送当前字符，不是 array[i]
+        USART_SendData(USART2, array[i]);  // 发送当前字符
         
         // 等待发送完成（每次发送后都要等待）
         while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
