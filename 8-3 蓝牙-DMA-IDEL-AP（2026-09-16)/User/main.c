@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdio.h> 
+#include "LED.h"
 
 int RECFlage = 0;
 int start = 0;
@@ -83,11 +84,13 @@ int main(void)
     Serial_Init();
     SendString("ATE0\r\n");
 	SendString("AT\r\n");
-
+    LED_Init();
+	
 	AP_STATUS status = ST_IDLE;
 	
     while(1)
     {
+		
 		// 接收到数据后开始执行状态机
 		if (!RECFlage)continue;
 		
@@ -156,6 +159,14 @@ int main(void)
 				{
 					OLED_ShowString(2,1,"success");
 					OLED_ShowString(3,1,res);
+					if (compareStr(res,"1"))	
+					{
+						LED1_ON();
+					}
+					else if(compareStr(res,"2"))
+					{
+						LED1_OFF();
+					}
 					memset((char*)RecMessage,0,MAX_BUFFER);
 				}else if(compareStr(res,"FAIL"))
 				{

@@ -35,3 +35,4 @@
 .\objects\main.o: D:\arm\C51\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\main.o: D:\arm\C51\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\main.o: D:\arm\C51\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\main.o: .\Hardware\LED.h
